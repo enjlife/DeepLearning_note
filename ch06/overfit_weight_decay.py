@@ -6,13 +6,14 @@ from dataset.mnist import load_mnist
 from common.multi_layer_net import MultiLayerNet
 from common.optimizer import SGD
 
-
+#样本量过少的overfit test
+#关于权值衰减（正则化）此处并没有运行，可以简单的修改weight_ecay_lamba = 1即可
 (x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)
 
 x_train = x_train[:300]
 t_train = t_train[:300]
 
-#weight_decay_lambda = 0
+#weight_decay_lambda用于权重衰减
 weight_decay_lambda = 0.1
 network = MultiLayerNet(input_size=784, hidden_size_list=[100, 100, 100, 100, 100, 100], output_size=10,
                         weight_decay_lambda=weight_decay_lambda)
@@ -41,6 +42,7 @@ for i in range(1000000000):
     optimizer.update(network.params, grads)
 
     if i % iter_per_epoch == 0:
+        #模型拟合完成后计算训练集准确度和测试集准确度
         train_acc = network.accuracy(x_train, t_train)
         test_acc = network.accuracy(x_test, t_test)
         train_acc_list.append(train_acc)
@@ -49,6 +51,7 @@ for i in range(1000000000):
         print("epoch:" + str(epoch_cnt) + ", train acc:" + str(train_acc) + ", test acc:" + str(test_acc))
 
         epoch_cnt += 1
+        #执行201个epoch后break
         if epoch_cnt >= max_epoch:
             break
 

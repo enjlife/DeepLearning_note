@@ -1,7 +1,7 @@
 # coding: utf-8
 import numpy as np
 import matplotlib.pylab as plt
-
+#阶跃函数
 def step_function(x):
     return np.array(x > 0, dtype=np.int)
 

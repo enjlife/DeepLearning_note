@@ -13,29 +13,36 @@ class MultiLayerNet:
         self.params = {}
 
         self.__init_weight(weight_init_std)
-
+        #relu和sigmoid的选择，用字典activation表示
         activation_layer = {'sigmoid': Sigmoid, 'relu': Relu}
+        #神经层使用有序字典
         self.layers = OrderedDict()
+        #根据隐藏层列表计算隐藏层大小，从1开始隐藏层
         for idx in range(1, self.hidden_layer_num + 1):
+            #第一层为Affine层
             self.layers['Affine' + str(idx)] = Affine(self.params['W' + str(idx)], self.params['b' + str(idx)])
-
+            #第一层relu或者sigmoid层
             self.layers['Activation_function' + str(idx)] = activation_layer[activation]()
 
         idx = self.hidden_layer_num + 1
+        #添加最后一层Affine神经层
         self.layers['Affine' + str(idx)] = Affine(self.params['W' + str(idx)], self.params['b' + str(idx)])
 
         self.last_layer = SoftmaxWithLoss()
 
-
+    #以双下划线线开头表示private，以双下划线开头结尾表示系统保留定义
+    #此私有函数主要生成通过判断生成w和b的初始值，affine层到relu不做权重和b的处理
     def __init_weight(self, weight_init_std):
+        #所有神经层的列表
         all_size_list = [self.input_size] + self.hidden_size_list + [self.output_size]
         for idx in range(1, len(all_size_list)):
             scale = weight_init_std
             if str(weight_init_std).lower() in ('relu', 'he'):
+                #relu和sigmoid的初始值的推荐，依据于前一层的节点数
                 scale = np.sqrt(2.0 / all_size_list[idx - 1]) # recommended initial value for ReLU
             elif str(weight_init_std).lower() in ('sigmoid', 'xavier'):
                 scale = np.sqrt(1.0 / all_size_list[idx - 1]) # recommended initial value for sigmoid
-
+            #生成W和b的初始参数
             self.params['W' + str(idx)] = scale * np.random.randn(all_size_list[idx - 1], all_size_list[idx])
             self.params['b' + str(idx)] = np.zeros(all_size_list[idx])
 
@@ -47,18 +54,19 @@ class MultiLayerNet:
 
     def loss(self, x, t):
         y = self.predict(x)
-
+        #权重衰减系数
         weight_decay = 0
         for idx in range(1, self.hidden_layer_num + 2):
             W = self.params['W' + str(idx)]
+            #权重衰减参数
             weight_decay += 0.5 * self.weight_decay_lambda * np.sum(W ** 2)
 
-        return self.last_layer.forward(y, t) + weight_decay
+        return self.last_layer.forward(y, t) + weight_decay  #添加L2范数
 
     def accuracy(self, x, t):
         y = self.predict(x)
         y = np.argmax(y, axis=1)
-        if t.ndim != 1: T = np.argmax(t, axis=1)
+        if t.ndim != 1: t = np.argmax(t, axis=1)
 
         acc = np.sum(y == t) / float(x.shape[0])
         return acc

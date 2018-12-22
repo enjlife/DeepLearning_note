@@ -11,7 +11,6 @@ train_size = x_train.shape[0]
 batch_size = 128
 max_iterations = 2000
 
-
 optimizers = {}
 optimizers['SGD'] = SGD()
 optimizers['Momentum'] = Momentum()
@@ -33,6 +32,7 @@ for i in range(max_iterations):
 
     for key in optimizers.keys():
         grads = networks[key].gradient(x_batch, t_batch)
+        #不同的梯度更新
         optimizers[key].update(networks[key].params, grads)
 
         loss = networks[key].loss(x_batch, t_batch)

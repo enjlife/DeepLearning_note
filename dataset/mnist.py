@@ -17,7 +17,7 @@ key_file = {
     'test_img':'t10k-images-idx3-ubyte.gz',
     'test_label':'t10k-labels-idx1-ubyte.gz'
 }
-
+#__file__变量包含当前模块的路径
 dataset_dir = os.path.dirname(__file__)
 save_file = dataset_dir + "/mnist.pkl"
 
@@ -29,11 +29,12 @@ img_size = 784
 
 def _download(file_name):
     file_path = dataset_dir + "/" + file_name
-
+    #如果存在该文件，直接返回
     if os.path.exists(file_path):
         return
 
     print("Downloading " + file_name + " ... ")
+    #urllib.request.urlretrieve(url,file_name,回调函数返回下载文件的块的大小、块的数量、总文件大小，data（post到服务器的数据）)
     urllib.request.urlretrieve(url_base + file_name, file_path)
     print("Done")
 
@@ -56,7 +57,7 @@ def _load_img(file_name):
 
     print("Converting " + file_name + " to NumPy Array ...")
     with gzip.open(file_path, 'rb') as f:
-            data = np.frombuffer(f.read(), np.uint8, offset=16)
+            data = np.frombuffer(f.read(), np.uint8, offset=16)  #(缓冲区接口，返回的数组类型，-1默认全部数据，从此偏移量开始读取缓冲区数据)
     data = data.reshape(-1, img_size)
     print("Done")
 
@@ -75,11 +76,12 @@ def init_mnist():
     download_mnist()
     dataset = _convert_numpy()
     print("Creating pickle file ...")
-    with open(save_file, 'wb') as f:
-        pickle.dump(dataset, f, -1)
+    with open(save_file, 'wb') as f:  #'wb'写入
+        pickle.dump(dataset, f, -1)  #将dataset字典打印到f  protocol=-1指最高协议
     print("Done!")
 
 def _change_ont_hot_label(X):
+
     T = np.zeros((X.size, 10))
     for idx, row in enumerate(T):
         row[X[idx]] = 1
@@ -88,31 +90,18 @@ def _change_ont_hot_label(X):
 
 
 def load_mnist(normalize=True, flatten=True, one_hot_label=False):
-    """MNISTデータセットの読み込み
 
-    Parameters
-    ----------
-    normalize : 画像のピクセル値を0.0~1.0に正規化する
-    one_hot_label :
-        one_hot_labelがTrueの場合、ラベルはone-hot配列として返す
-        one-hot配列とは、たとえば[0,0,1,0,0,0,0,0,0,0]のような配列
-    flatten : 画像を一次元配列に平にするかどうか
-
-    Returns
-    -------
-    (訓練画像, 訓練ラベル), (テスト画像, テストラベル)
-    """
     if not os.path.exists(save_file):
         init_mnist()
-
+    #save_path是mnist.pkl
     with open(save_file, 'rb') as f:
         dataset = pickle.load(f)
-
+    #标准化
     if normalize:
         for key in ('train_img', 'test_img'):
             dataset[key] = dataset[key].astype(np.float32)
             dataset[key] /= 255.0
-
+    #将[5 0 4 1 9 2 1 3 1 4] 转化为one_hot
     if one_hot_label:
         dataset['train_label'] = _change_ont_hot_label(dataset['train_label'])
         dataset['test_label'] = _change_ont_hot_label(dataset['test_label'])

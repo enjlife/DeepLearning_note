@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from PIL import Image
 import pickle
 
+# ch03--学习笔记
+
 #图片预览
 # def img_show(img):
 #     pil_img = Image.fromarray(np.uint8(img)) #将numpy数组的图像数据转换为PIL的数据对象
@@ -20,15 +22,16 @@ import pickle
 # img_show(img)
 # def sigmoid(z):
 #     return 1 / (1 + np.exp(-z))
-#softmax函数
-def softmax(a):
-    c = np.max(a)
-    exp_a = np.exp(a-c)
-    exp_sum = np.sum(exp_a)
-    return exp_a / exp_sum
+
+#softmax函数--求出所占比例
+# def softmax(a):
+#     c = np.max(a)
+#     exp_a = np.exp(a-c)
+#     exp_sum = np.sum(exp_a)
+#     return exp_a / exp_sum
 #sigmoid函数
-def sigmoid(x):
-    return 1 / (1+np.exp(-x))
+# def sigmoid(x):
+#     return 1 / (1+np.exp(-x))
 
 #数据准备
 # def get_data():

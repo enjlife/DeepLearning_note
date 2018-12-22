@@ -7,7 +7,7 @@ from common.util import smooth_curve
 from common.multi_layer_net import MultiLayerNet
 from common.optimizer import SGD
 
-
+#mnist数据集测试不同的权重初始值的影响
 (x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)
 
 

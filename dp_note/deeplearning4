@@ -1,0 +1,42 @@
+import numpy as np
+import sys, os
+import numpy as np
+sys.path.append(os.pardir)
+from dataset.mnist import load_mnist
+from common.gradient import numerical_gradient
+import matplotlib.pyplot as plt
+from PIL import Image
+import pickle
+from common.functions import *
+from collections import OrderedDict
+from common.layers import *
+from common.multi_layer_net import MultiLayerNet
+import matplotlib.pyplot as plt
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+def Relu(x):
+    return np.maximum(0, x)
+x = np.random.randn(1000, 100)
+node_num = 100   #隐藏层的节点数
+hidden_layer_size = 5  #隐藏层的层数
+activations = {}  #激活值的结果保存
+
+for i in range(hidden_layer_size):
+    if  i != 0:
+        x = activations[i-1]
+    #w = np.random.randn(node_num, node_num) * 1
+    #w = np.random.randn(node_num, node_num) * 0.01
+    w = np.random.randn(node_num, node_num) / np.sqrt(node_num)
+    z = np.dot(x, w)
+    #x = sigmoid(z)
+    x = Relu(x)
+    activations[i] = x
+
+for i, a in activations.items():
+    plt.subplot(1, len(activations), i+1)
+    plt.title(str(i+1) + 'layer')
+    plt.hist(a.flatten(), 30, range=(0,1))
+plt.show()
+
+
+

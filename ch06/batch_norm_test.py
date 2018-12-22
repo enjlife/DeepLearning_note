@@ -6,7 +6,7 @@ from dataset.mnist import load_mnist
 from common.multi_layer_net_extend import MultiLayerNetExtend
 from common.optimizer import SGD, Adam
 
-
+#batch norm对结果的影响
 (x_train, t_train), (x_test, t_test) = load_mnist(normalize=True)
 
 

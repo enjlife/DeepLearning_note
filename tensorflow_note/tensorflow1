@@ -1,0 +1,146 @@
+import tensorflow as tf
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+
+# a = tf.constant([1.0,2.0],name='a')
+# b = tf.constant([2.0,3.0],name='b')
+# result = tf.add(a,b,name='add')
+# print(result)
+# print(tf.Session().run(result))
+
+#tf.Session.close(self=)
+
+#保存三个属性，名字、维度、类型 名字：（节点名：节点的第几个输出）
+#Tensor("add:0", shape=(2,), dtype=float32)
+#此处运算的两个数字类型要一致
+#1.使用张量可以引用中间计算结果，记录维度 result.get_shape  2.通过会话获取数据
+
+#通过会话执行定义好的计算，会话拥有和管理程序运行的资源，计算后要关闭会话回收资源
+
+
+#a.graph 查看当前计算图  tf.get_default_graph 获取当前计算图
+#print(a.graph is tf.get_default_graph)
+
+#产生计算图g1和g2，两个计算图的变量和计算隔离
+# g1 = tf.Graph()
+#通过python的上下文管理器管理会话，自动关闭会话
+# with g1.as_default():
+#     #定义变量'v'，并设置初始值0
+#     v = tf.get_variable('v', shape=[1], initializer=tf.zeros_initializer)
+#
+# g2 = tf.Graph()
+# with g2.as_default():
+#     v = tf.get_variable('v', shape=[1],initializer=tf.ones_initializer)
+#
+# #在计算图g1中读取变量'v'的取值
+# with tf.Session(graph=g1) as sess:
+#     tf.global_variables_initializer().run()
+#     with tf.variable_scope('', reuse=True):
+#         print(sess.run(tf.get_variable('v')))
+#
+# with tf.Session(graph=g2) as sess:
+#     tf.global_variables_initializer().run()
+#     with tf.variable_scope('', reuse=True):
+#         print(sess.run(tf.get_variable('v')))
+
+#指定计算运行的设备
+# with g.device('/gpu:0'):
+#     result = a+b
+
+#有效整理tensorflow里面的资源，通过collection来管理不同类别的资源
+# tf.add_to_collection
+# tf.get_collection
+
+#设定默认会话计算张量,通过tensor.eval
+# sess = tf.Session()
+# with sess.as_default():
+#     print(result.eval())
+#
+# #或者以下代码
+# print(sess.run(result))
+
+# print(result.eval(session=sess))
+# #构建默认会话,并关闭
+# sess = tf.InteractiveSession()
+# print(result.eval())
+# sess.close()
+
+#通过ConfigProto Protocol Buffer配置需要生成的会话
+#allow_soft为True  当某几个条件成立时，GPU的运算可以放到CPU上进行
+#log_device为True  会记录每个节点被安排在哪个设备上以方便调试
+# config = tf.ConfigProto(allow_soft_placement=True,log_device_placement=True)
+# sess1 = tf.InteractiveSession(config=config)
+# sess2 = tf.Session(config=config)
+
+#矩阵乘法
+# a = tf.matmul(x, w1)
+# y = tf.matmul(a, w2)
+#
+# #随机数给tensorflow的变量初始化,stddev标准差 通过mean可以指定均值
+# weight = tf.Variable(tf.random_normal([2,3],stddev=2))
+# biases = tf.Variable(tf.zeros([3]))
+# tf.ones()
+# tf.fill()
+# tf.constant()
+# #w2与weights变量相同
+# w2 = tf.Variable(weight.initialized_value())
+# w3 = tf.Variable(weight.initialized_value()*2.0)
+
+#样例：前向传播
+# w1 = tf.Variable(tf.random_normal((2,3),stddev=1,seed=1))  #设定随机种子，保证每次运行的结果一样
+# w2 = tf.Variable(tf.random_normal((3,1),stddev=1,seed=1))
+#
+# x = tf.constant([[0.7,0.9]])  #x为常量
+# a = tf.matmul(x, w1)
+# y = tf.matmul(a,w2)
+#
+# sess = tf.Session()
+#这里不能直接通过sess.run(y)获取y的值，因为w1和w2没有初始化
+# sess.run(w1.initializer)  #初始化w1
+# sess.run(w2.initializer)
+# print(sess.run(y))
+# sess.close()
+#变量初始化,会自动处理变量间的依赖关系
+# init_op = tf.global_variables_initializer()
+# sess.run(init_op)
+
+#变量初始化，随机数生成函数生成输入到Assign节点再输出，输出附给了变量w1
+
+#所有变量都会自动加入GraphKeys.VARIABLES,通过tf.global_variables()可以拿到计算图所有的变量，持续化运算状态
+#可以通过声明trainable参数区分是否要优化，为True加入GrsphKeys.TRAINABLE_VARIABLE（神经算法会默认该为优化对象）
+#tf.trainable_variable获取要优化的参数
+
+
+#变量类型创建后不可更改
+# w1 = tf.Variable(tf.random_normal((2,3),stddev=1), name='w1')
+# w2 = tf.Variable(tf.random_normal((2,3),stddev=1,dtype=tf.float64),name='w2')
+# w1.assign(w2)  #将w2的值初始化给w1
+
+# #维度可以修改
+# w1 = tf.Variable(tf.random_normal((2,3),stddev=1), name='w1')
+# w2 = tf.Variable(tf.random_normal((2,2),stddev=1),name='w2')
+# tf.assign(w1,w2,validate_shape=False)  #如果不加validate会失败  此处assign的作用是啥？？
+# print(w1)
+# print(w2)
+
+#通过tf训练神经网络
+# x = tf.constraint=([[0.7,0.9]])
+#placeholder：定义一个位置，这个位置的数据在程序运行时再指定，就不用生成大量常量提供输入数据
+#维度不一定要定义，如果维度确定，可以降低出错的概率
+w1 = tf.Variable(tf.random_normal((2,3),stddev=1,seed=1))  #设定随机种子，保证每次运行的结果一样
+w2 = tf.Variable(tf.random_normal((3,1),stddev=1,seed=1))
+x = tf.placeholder(tf.float32, shape=(1,2),name='input')
+a = tf.matmul(x,w1)
+y = tf.matmul(a,w2)
+sess = tf.Session()
+init_op = tf.global_variables_initializer()
+sess.run(init_op)
+print(sess.run(y, feed_dict={x:[[0.7,0.9]]}))   #类似于**dict
+
+
+
+
+
+
+

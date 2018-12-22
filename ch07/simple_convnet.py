@@ -7,7 +7,7 @@ from common.gradient import numerical_gradient
 
 
 class SimpleConvNet:
-    def __init__(self, input_dim={1, 28, 28},
+    def __init__(self, input_dim=(1, 28, 28),
                  conv_param={'filter_num': 30, 'filter_size': 5, 'pad': 0, 'stride': 1},
                  hidden_size=100, output_size=10, weight_init_std=0.01):
         filter_num = conv_param['filter_num']
@@ -40,6 +40,8 @@ class SimpleConvNet:
     def predict(self, x):
         for layer in self.layers.values():
             x = layer.forward(x)
+            print(x.shape)
+            #print(x)
 
         return x
 

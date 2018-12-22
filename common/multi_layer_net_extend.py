@@ -4,6 +4,7 @@ from collections import OrderedDict
 from common.layers import *
 from common.gradient import numerical_gradient
 
+#包含batch norm和dropout的最终版，但不包含CNN的算法
 
 class MultiLayerNetExtend:
     def __init__(self, input_size, hidden_size_list, output_size,
@@ -13,8 +14,10 @@ class MultiLayerNetExtend:
         self.output_size = output_size
         self.hidden_size_list = hidden_size_list
         self.hidden_layer_num = len(hidden_size_list)
+        #是否使用dropout
         self.use_dropout = use_dropout
         self.weight_decay_lambda = weight_decay_lambda
+        #是否使用batch norm
         self.use_batchnorm = use_batchnorm
         self.params = {}
 
@@ -24,14 +27,14 @@ class MultiLayerNetExtend:
         self.layers = OrderedDict()
         for idx in range(1, self.hidden_layer_num + 1):
             self.layers['Affine' + str(idx)] = Affine(self.params['W' + str(idx)], self.params['b' + str(idx)])
-
+            #如果使用batch norm
             if self.use_batchnorm:
                 self.params['gamma' + str(idx)] = np.ones(hidden_size_list[idx - 1])
                 self.params['beta' + str(idx)] = np.zeros(hidden_size_list[idx - 1])
                 self.layers['BatchNorm' + str(idx)] = BatchNormalization(self.params['gamma' + str(idx)], self.params['beta' + str(idx)])
 
             self.layers['Activation_function' + str(idx)] = activation_layer[activation]()
-
+            #如果使用dropout
             if self.use_dropout:
                 self.layers['Dropout' + str(idx)] = Dropout(dropout_ratio)
 
@@ -68,6 +71,7 @@ class MultiLayerNetExtend:
         weight_decay = 0
         for idx in range(1, self.hidden_layer_num + 2):
             W = self.params['W' + str(idx)]
+            #weight_decay_lamba用于权重衰减
             weight_decay += 0.5 * self.weight_decay_lambda * np.sum(W**2)
 
         return self.last_layer.forward(y, t) + weight_decay

@@ -11,13 +11,15 @@ from common.trainer import Trainer
 x_train = x_train[:300]
 t_train = t_train[:300]
 
-#use_dropout = False
+#use_dropout 默认 False
 use_dropout = True
 dropout_ratio = 0.15
 network = MultiLayerNetExtend(input_size=784, hidden_size_list=[100, 100, 100, 100, 100, 100],
                               output_size=10, use_dropout=use_dropout, dropout_ratio=dropout_ratio)
+
+#trainer函数会把network类和类的相关变量包含进来，trainer的变量是选择：network、训练和监督数据、epoch次数、batch_size、梯度计算方式optimizer、梯度学习率和verbose
 trainer = Trainer(network, x_train, t_train, x_test, t_test,
-                  epochs=301, mini_batch_size=100,
+                  epochs=201, mini_batch_size=100,
                   optimizer='sgd', optimizer_param={'lr': 0.01}, verbose=True)
 
 trainer.train()
