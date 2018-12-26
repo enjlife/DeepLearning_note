@@ -1,0 +1,130 @@
+import tensorflow as tf
+import os
+import numpy as np
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+#激活函数relu避免线性运算，引入非线性运算
+# a = tf.nn.relu(tf.matmul(x,w2)+biase1)
+
+#损失函数 loss  reduce_mean对数组求均值
+#cross_entropy = -tf.reduce_mean(y_*tf.log(tf.clip_by_value(y,1e-10,1.0)))
+#with tf.Session() as sess:
+    # v = tf.constant([[1.0,2.0,3.0],[4.0,5.0,6.0]])
+    # print(tf.clip_by_value(v,2.5,5).eval())
+
+#softmax和交叉熵一起使用
+#cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=y_,logits=y)
+
+#自定义损失函数 greater(v1,v2)比较v1是否大于v2
+#tf.where(tf.greater())比较并取值
+#loss = tf.reduce_sum(tf.where(tf.greater(v1,v2),(v1-v1)*a,(v2-v1)*b))
+
+#损失函数对模型训练影响
+# batch_size = 8
+#两个输入节点
+# x = tf.placeholder(tf.float32,shape=(None,2),name='input-x')
+# y_ = tf.placeholder(tf.float32,shape=(None,1),name='input-y')
+# w1 = tf.Variable(tf.random_normal([2,1],stddev=1,seed=1))
+# y = tf.matmul(x,w1)
+# loss_less = 10
+# loss_more = 1
+# cross_entropy = tf.reduce_sum(tf.where(tf.greater(y_,y),loss_less*(y_-y),loss_more*(y-y_)))
+# train_step = tf.train.AdamOptimizer(0.01).minimize(loss=cross_entropy)
+#
+# dataset = 128
+# rdm = np.random.RandomState(1)
+# X = rdm.rand(dataset,2)
+# Y = [[x1+x2+rdm.rand()/10.0-0.05] for (x1,x2) in X]
+#
+#
+# with tf.Session() as sess:
+#     iter_num = 3000
+#     init_op = tf.global_variables_initializer()
+#     sess.run(init_op)
+#     for i in range(iter_num):
+#         start = (i*batch_size) % dataset
+#         end = min(start+batch_size,dataset)
+#         sess.run(train_step,feed_dict={x:X[start:end],y_:Y[start:end]})
+#     print(sess.run((w1)))
+
+#小batch和随机梯度算法折中，每次计算一小部分训练数据的损失函数
+# batch_size = 8
+# x = tf.placeholder(tf.float32,shape=(batch_size,2),name='input-x')
+# y_ = tf.placeholder(tf.float32,shape=(batch_size,1),name='input-y')
+
+#调节学习率大小--指数衰减法
+#tf.train.exponential_decay(staircase=True) #当为True时，整数调整
+#decay_step=dataset/batch_size
+#decayed_learning_rate = learning_rate * decay_rate ^(global_step/decay_steps)  #
+#使用指数衰减法变化learning_rate
+#每训练完一个batch +1
+#参考--https://blog.csdn.net/qq_26826585/article/details/82144835
+#global_step = tf.Variable(0)
+
+#learning_rate = tf.train.exponential_decay(0.1,global_step,100,0.96,staircase=True)  #decay_steps=100,每训练100轮batch乘0.96
+#当global_step自动更新时，learning_rate也得到更新
+# learning_step = tf.train.AdamOptimizer(learning_rate).minimize(loss,global_step=global_step)
+
+#防止过拟合 L1正则和L2正则
+# w = tf.Variable(tf.random_normal([2,1],stddev=1,seed=1))
+# y = tf.matmul(x,w)
+# loss = tf.reduce_mean(tf.square(y_-y))+tf.contrib.layers.l2_regularizer(lambda)(w)
+
+# weights = tf.constant([[1.0,-2.0],[-3.0,4.0]])
+# with tf.Session() as sess:
+#     print(sess.run(tf.contrib.layers.l1_regularizer(.5)(weights)))
+#     print(sess.run(tf.contrib.layers.l2_regularizer(.5)(weights)))
+
+#使用collection计算呆L2正则化的损失函数
+#get_weight函数在每一层生成w并将w值添加到collection
+# def get_weight(shape,lama):
+#     var = tf.Variable(tf.random_normal(shape),dtype=tf.float32)
+#     tf.add_to_collection('losses',tf.contrib.layers.l2_regularizer(lama)(var))
+#     return var
+# x = tf.placeholder(dtype=tf.float32,shape=(None,2))
+# y_ = tf.placeholder(dtype=tf.float32,shape=(None,1))
+#
+# batch_size = 8
+# layer_dimension = [2,10,10,10,1]
+# n_layers = len(layer_dimension)
+# cur_layer = x
+# in_dimension = layer_dimension[0]
+#
+# for i in range(1,n_layers):
+#     out_dimension = layer_dimension[i]
+#     weight = get_weight([in_dimension,out_dimension],0.001)
+#     bias = tf.Variable(tf.constant(0.1,shape=[out_dimension]))  #Variable内套constant
+#     cur_layer = tf.nn.relu(tf.matmul(cur_layer,weight)+bias)
+#     in_dimension = layer_dimension[i]
+#
+# mse_loss = tf.reduce_sum(tf.square(y_-cur_layer))
+# tf.add_to_collection('losses',mse_loss)
+# loss = tf.add_n(tf.get_collection('losses'))
+
+#滑动平均模型--维护一个影子变量
+#影子变量中decay决定了模型更新的速度，decay一般接近1
+#为了在训练前期更快，提供了num_updates来动态设置decay的大小
+# tf.train.ExponentialMovingAverage()
+# shadow_variable = decay * shadow_variable+(1-decay)*shadow_variable #影子变量中decay决定了模型更新的速度，decay一般接近1
+
+#tf.train.ExponentialMovingAverage样例
+# v1 = tf.Variable(0,tf.float32)  #所有需要计算滑动平均的变量必须是实数型
+# step = tf.Variable(0,trainable=False)  #迭代次数
+# ema = tf.train.ExponentialMovingAverage(0.99,step)
+# maintain_averages_op = ema.apply([v1])
+#
+# with tf.Session as sess:
+#     init_op = tf.global_variables_initializer()
+#     sess.run(init_op)
+#     print(sess.run([v1,ema.average(v1)]))
+#
+#     sess.run(tf.assign(v1,5))  #赋值5给v1
+#     sess.run(maintain_averages_op) #计算decay并更新滑动平均值
+#     print(sess.run([v1,ema.average(v1)]))
+#
+#     sess.run(tf.assign(step,10000))
+#     sess.run(tf.assign(v1,10))
+#     sess.run(maintain_averages_op)
+#     print(sess.run([v1,ema.average(v1)]))
+#     sess.run(maintain_averages_op)
+#     print(sess.run([v1,ema.average(v1)]))
