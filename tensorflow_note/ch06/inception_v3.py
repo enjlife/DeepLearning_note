@@ -14,13 +14,14 @@ ckpt_file = '/Users/enjlife/inception_v3.ckpt'
 learning_rate = 0.0001
 steps = 300
 n_classes = 5
+BATCH = 32
 
 # 不需要从谷歌训练好的模型中加载的参数。
 CHECKPOINT_EXCLUDE_SCOPES = 'InceptionV3/Logits,InceptionV3/AuxLogits'
 # 需要训练的网络层参数明层，在fine-tuning的过程中就是最后的全联接层。
 TRAINABLE_SCOPES='InceptionV3/Logits,InceptionV3/AuxLogit'
 
-def get_tuned_variables():
+def get_tuned_variables():  #获取不需要加载的模型参数
     exclusions = [scope.strip() for scope in CHECKPOINT_EXCLUDE_SCOPES.split(',')] #strip()默认删除空白符（包括'\n', '\r',  '\t',  ' ')
     variables_to_restore = []
     for var in slim.get_model_variables():  #枚举模型中所有的参数，判断是否需要从加载列表删除
@@ -33,11 +34,11 @@ def get_tuned_variables():
             variables_to_restore.append(var)
     return variables_to_restore
 
-def get_trainable_variable():
+def get_trainable_variable():  #获取需要加载的模型参数
     scopes = [scope.strip() for scope in TRAINABLE_SCOPES.split(',')]
     variables_to_train = []
     for scope in scopes:
-        variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope)
+        variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES,scope)  #将scope的变量添加到TRAU=INBLE_VARIABLE
         variables_to_train.extend(variables)
     return variables_to_train
 
@@ -103,4 +104,39 @@ def main():
 if __name__=='__main__':
     tf.app.run()
 
+#加载模型的两种方法
+# 1 在恢复模型的时候，部分层不使用ckpt文件中提供的参数
+# height = 299
+# width = 299
+# channels = 3
+# num_classes=1001
+#
+# X = tf.placeholder(tf.float32, shape=[None, height, width, channels])
+# y = tf.placeholder(tf.float32,shape=[None,182])
+# with slim.arg_scope(nets.inception.inception_v3_arg_scope()):
+#     logits, end_points = nets.inception.inception_v3(X, num_classes=num_classes,is_training=False)
+# with tf.Session() as sess:
+#     exclude=['Mixed_7c','Mixed_7b','AuxLogits','AuxLogits','Logits','Predictions']
+#     variables_to_restore=slim.get_variables_to_restore(exclude=exclude)
+#     sess.run(tf.global_variables_initializer())
+#     saver=tf.train.Saver(variables_to_restore)
+#     saver.restore(sess,os.path.join("E:\\","inception_v3.ckpt"))
+#     print("Done")
 
+# 2 在加载模型的时候，使用final_endpoint参数，指定模型阶段点
+# height = 299
+# width = 299
+# channels = 3
+# num_classes=1001
+#
+# X = tf.placeholder(tf.float32, shape=[None, height, width, channels])
+# y = tf.placeholder(tf.float32,shape=[None,182])
+# with slim.arg_scope(nets.inception.inception_v3_arg_scope()):
+#     logits, end_points = nets.inception.inception_v3_base(X,final_endpoint = "Mixed_7a")
+#     variables_to_restore=slim.get_variables_to_restore()
+
+# with tf.Session() as sess:
+#     sess.run(tf.global_variables_initializer())
+#     saver=tf.train.Saver(variables_to_restore)
+#     saver.restore(sess,os.path.join("E:\\","inception_v3.ckpt"))
+#     print("Done")

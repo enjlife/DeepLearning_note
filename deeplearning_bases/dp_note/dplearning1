@@ -1,0 +1,55 @@
+# git使用：文件先commit后push，未commit的文件是绿色的，提交完成后为白色
+# 如果push失败可以尝试：Settings->Version Control->Git中，将SSH executable设置为Native
+# git常用命令 git which
+#pyplt 常用语句 .figure建立图 .plot绘制图表  legend图示
+
+
+import sys, os
+
+sys.path.append(os.pardir)
+
+from dataset.mnist import load_mnist
+
+# class TwoLayerNet:
+#     def __init__(self, input_size, hidden_size, output_size, weight_init_std = 0.01):
+#         #初始化权重
+#         self.params = {}
+#         self.params['W1'] = weight_init_std * np.random.randn(input_size, hidden_size)
+#         self.params['b1'] = np.zeros(hidden_size)
+#         self.params['W2'] = weight_init_std * np.random.randn(hidden_size, output_size)
+#         self.params['b2'] = np.zeros(output_size)
+#         #生成层
+#         self.layers = OrderedDict()
+#         self.layers['Affinel1'] = Affine(self.params['W1'], self.params['b1'])
+#         self.layers['Relu'] = Relu()
+#         self.layers['Affinel2'] = Affine(self.params['W2'], self.params['b2'])
+#         self.lastlayer = SoftmaxWithLoss()
+#
+#     def predict(self, x):
+#         W1, W2 = self.params['W1'], self.params['W2']
+#         b1, b2 = self.params['b1'], self.params['b2']
+#         z1 = np.dot(x, W1) + b1
+#         a1 = sigmoid(z1)
+#         z2 = np.dot(a1, W2) + b2
+#         y  = sigmoid(z2)
+#
+#     def pp(self):
+#         for key in self.params.keys():
+#             print(key)
+#
+#
+# a = TwoLayerNet(784, 50, 10, 0.1)
+# a.pp()
+# def test(x):
+#     if x % 3:
+#         return 1
+#     else:
+#         return 0
+#
+# a = np.array([1,2,3,4,5,6,7,8,9])
+# for i in range(len(a)):
+#     print(test(a[i]))
+(a,b),(c,d) = load_mnist()
+print(a[:2],b[:10])
+
+

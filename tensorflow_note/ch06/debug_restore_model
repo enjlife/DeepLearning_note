@@ -1,0 +1,21 @@
+import tensorflow as tf
+import os
+from tensorflow.python import pywrap_tensorflow
+
+# tensorflow训练后保存的模型主要包含两部分，一是网络结构的定义（网络图），二是网络结构里的参数值。
+# data-00000-of-00001 文件和 .index 文件合在一起组成了 ckpt 文件，保存了网络结构中所有 权重和偏置 的数值。
+# https://blog.csdn.net/dcrmg/article/details/79672874
+
+checkpoint_path = os.path.join('/Users/enjlife', "inception_v3.ckpt")
+reader = pywrap_tensorflow.NewCheckpointReader(checkpoint_path)
+var_to_shape_map = reader.get_variable_to_shape_map()
+for key in var_to_shape_map:
+    print("tensor_name: ", key)
+
+
+
+# ckpt_file = '/Users/enjlife/inception_v3.ckpt'
+# saver = tf.train.Saver()
+#
+# with tf.Session() as sess:
+#     saver.restore(sess,ckpt_file)
