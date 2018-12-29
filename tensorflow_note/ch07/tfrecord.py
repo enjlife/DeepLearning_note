@@ -8,6 +8,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 mnist_file = '/Users/enjlife/learning-deep-learning-from-scratch/tensorflow_note/MNIST_data'
 save_file = os.path.dirname(__file__)+'/output.tfrecords'
 
+
+"""
+图像数据的调整（色彩、对比度等），裁剪
+
+
+
+"""
+
+
 #将mnist数据转化为tfrecord格式
 # def _init64_feature(value):  #生成整数型的属性
 #     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
@@ -158,15 +167,15 @@ def preprocess_for_train(image,height,width,bbox):  #裁剪并resize
     distorted_image = distort_color(distorted_image,np.random.randint(2))
     return distorted_image
 
-image_raw_data = tf.gfile.GFile('','r').read()
-
-with tf.Session() as sess:
-    img_data = tf.image.decode_jpeg(image_raw_data)
-    boxes = tf.constant([[[0.05,0.05,0.9,0.7],[0.35,0.47,0.5,0.56]]])
-    for i in range(6):
-        result = preprocess_for_train(img_data,299,299,boxes)
-        plt.imshow(result.eval())
-        plt.show()
+# image_raw_data = tf.gfile.GFile('','r').read()
+#
+# with tf.Session() as sess:
+#     img_data = tf.image.decode_jpeg(image_raw_data)
+#     boxes = tf.constant([[[0.05,0.05,0.9,0.7],[0.35,0.47,0.5,0.56]]])
+#     for i in range(6):
+#         result = preprocess_for_train(img_data,299,299,boxes)
+#         plt.imshow(result.eval())
+#         plt.show()
 
 
 

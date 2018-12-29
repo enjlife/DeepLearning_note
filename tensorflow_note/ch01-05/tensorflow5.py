@@ -4,7 +4,6 @@ import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  #指定系统（服务器或电脑等）中哪些是对 TensorFlow 可见的
 from tensorflow.python.platform import gfile
 from tensorflow.examples.tutorials.mnist import input_data
-from dataset import mnist
 
 # tf框架学习第五章
 #思路整理：1.变量初始化   2.定义辅助函数，支持计算参数平均值  3.定义训练函数 添加L2范数的损失函数

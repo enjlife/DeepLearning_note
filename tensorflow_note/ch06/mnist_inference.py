@@ -5,7 +5,6 @@ import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from tensorflow.python.platform import gfile
 from tensorflow.examples.tutorials.mnist import input_data
-from dataset import mnist
 
 input_data_num = 784
 output_data_num = 10
@@ -19,15 +18,15 @@ conv2_deep = 64
 conv2_size = 5
 fc_size = 512
 
-# def get_weight_varialbe(shape,regularizer):
-#     weights = tf.get_variable('weights',shape,initializer=tf.truncated_normal_initializer(stddev=0.1))
-#     #print(weights)
-#     if regularizer != None:
-#         #print(regularizer(weights))
-#         #https://stackoverflow.com/questions/37107223/how-to-add-regularizations-in-tensorflow
-#         #换了一下储存的集合，原来的集合是自定义的"losses"更换为tf.GraphKeys.REGULARIZATION_LOSSES
-#         tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES,regularizer(weights)) #给定正则化函数时，将正则化损失加入losses集合--自定义的集合
-#     return weights
+def get_weight_varialbe(shape,regularizer):
+    weights = tf.get_variable('weights',shape,initializer=tf.truncated_normal_initializer(stddev=0.1))
+    #print(weights)
+    if regularizer != None:
+        #print(regularizer(weights))
+        #https://stackoverflow.com/questions/37107223/how-to-add-regularizations-in-tensorflow
+        #换了一下储存的集合，原来的集合是自定义的"losses"更换为tf.GraphKeys.REGULARIZATION_LOSSES
+        tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES,regularizer(weights)) #给定正则化函数时，将正则化损失加入losses集合--自定义的集合
+    return weights
 
 def inference(input_tensor,train,regularizer):
     with tf.variable_scope('layer1-conv'):
@@ -70,6 +69,14 @@ def inference(input_tensor,train,regularizer):
         logits = tf.matmul(fc1,fc2_weights)+fc2_biases
 
     return logits
+
+# def calc_loss(logit,label_batch):
+#     cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logit,
+#                                                                    labels=tf.argmax(label_batch, 1))  # y为什么没有使用argmax取index？？
+#     cross_entropy_mean = tf.reduce_mean(cross_entropy)
+#     # print(tf.get_collection('losses'))
+#     loss = cross_entropy_mean + tf.add_n(tf.get_collection('losses'))
+#     return loss
 
 
 
