@@ -27,7 +27,7 @@ def get_tuned_variables():  #获取不需要加载的模型参数
     for var in slim.get_model_variables():  #枚举模型中所有的参数，判断是否需要从加载列表删除
         excluded = False
         for exclusion in exclusions:
-            if var.op.name.startwith(exclusion):  #直接打印.op.name就能打印出名称 .get_shape().as_list()就输出shape
+            if var.op.name.startswith(exclusion):  #直接打印.op.name就能打印出名称 .get_shape().as_list()就输出shape
                 excluded = True
                 break
         if not excluded:

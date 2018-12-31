@@ -3,7 +3,6 @@ import sys, os
 sys.path.append(os.pardir)
 import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-from tensorflow.python.platform import gfile
 from tensorflow.examples.tutorials.mnist import input_data
 
 input_data_num = 784
@@ -18,15 +17,15 @@ conv2_deep = 64
 conv2_size = 5
 fc_size = 512
 
-def get_weight_varialbe(shape,regularizer):
-    weights = tf.get_variable('weights',shape,initializer=tf.truncated_normal_initializer(stddev=0.1))
-    #print(weights)
-    if regularizer != None:
-        #print(regularizer(weights))
-        #https://stackoverflow.com/questions/37107223/how-to-add-regularizations-in-tensorflow
-        #换了一下储存的集合，原来的集合是自定义的"losses"更换为tf.GraphKeys.REGULARIZATION_LOSSES
-        tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES,regularizer(weights)) #给定正则化函数时，将正则化损失加入losses集合--自定义的集合
-    return weights
+# def get_weight_varialbe(shape,regularizer):
+#     weights = tf.get_variable('weights',shape,initializer=tf.truncated_normal_initializer(stddev=0.1))
+#     #print(weights)
+#     if regularizer != None:
+#         #print(regularizer(weights))
+#         #https://stackoverflow.com/questions/37107223/how-to-add-regularizations-in-tensorflow
+#         #换了一下储存的集合，原来的集合是自定义的"losses"更换为tf.GraphKeys.REGULARIZATION_LOSSES
+#         tf.add_to_collection(tf.GraphKeys.REGULARIZATION_LOSSES,regularizer(weights)) #给定正则化函数时，将正则化损失加入losses集合--自定义的集合
+#     return weights
 
 def inference(input_tensor,train,regularizer):
     with tf.variable_scope('layer1-conv'):
@@ -47,7 +46,7 @@ def inference(input_tensor,train,regularizer):
         relu2 = tf.nn.relu(tf.nn.bias_add(conv2,conv2_biases))
 
     with tf.name_scope('layer4-pool2'):
-        pool2 = tf.nn.max_pool(relu2,ksize=[1,2,2,1],strides=[1,1,1,1],padding='SAME')
+        pool2 = tf.nn.max_pool(relu2,ksize=[1,2,2,1],strides=[1,2,2,1],padding='SAME')
 
     pool_shape = pool2.get_shape().as_list()  #pool_shape[0]为一个batch的数量
     nodes = pool_shape[1]*pool_shape[2]*pool_shape[3]

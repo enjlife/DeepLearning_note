@@ -4,23 +4,24 @@ sys.path.append(os.pardir)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from tensorflow.examples.tutorials.mnist import input_data
 
-from tensorflow_note import mnist_inference #引用需要先编译通过
+import mnist_inference #引用需要先编译通过
 
 model_path = os.path.dirname(__file__)
 data_set = model_path+'/MNIST_data'
 save_file = model_path + '/model/'
 
-batch_size = 100
-learning_rate_base = 0.9
+batch_size = 50
+learning_rate_base = 0.95
 learning_rate_decay = 0.96
 regularization_rate = 0.0001
-train_step_num = 20000
+train_step_num = 15000
 moving_average_decay = 0.99
 model_save_path = save_file
 model_name = 'model1.ckpt'
 
 def train(mnist):
     x = tf.placeholder(dtype=tf.float32, shape=[None, mnist_inference.input_data_num], name='x-input')
+    y_ = tf.placeholder(dtype=tf.float32, shape=[None, mnist_inference.output_data_num],name='y-input')
     regularizer = tf.contrib.layers.l2_regularizer(regularization_rate)
     y = mnist_inference.inference(x, regularizer=regularizer)
 

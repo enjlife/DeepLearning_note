@@ -3,7 +3,6 @@ import sys, os
 sys.path.append(os.pardir)
 import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-from tensorflow.python.platform import gfile
 from tensorflow.examples.tutorials.mnist import input_data
 
 from tensorflow_note.ch06 import mnist_inference #引用需要先编译通过
@@ -12,11 +11,11 @@ model_path = os.path.dirname(__file__)
 data_set = model_path+'/MNIST_data'
 save_file = model_path + '/model/'
 
-batch_size = 100
-learning_rate_base = 0.9
-learning_rate_decay = 0.96
+batch_size = 50
+learning_rate_base = 0.01
+learning_rate_decay = 0.99
 regularization_rate = 0.0001
-train_step_num = 20000
+train_step_num = 6000
 moving_average_decay = 0.99
 model_save_path = save_file
 model_name = 'model1.ckpt'
@@ -56,7 +55,7 @@ def train(mnist):
             reshaped_xs = np.reshape(xs,(batch_size,mnist_inference.image_size,mnist_inference.image_size,mnist_inference.num_channel))
             _,loss_value,step = sess.run([train_op,loss,global_step],feed_dict={x:reshaped_xs,y_:ys})
 
-            if i % 1000 == 0:
+            if i % 100 == 0:
                 print('%d iter：%g' %(step,loss_value))
                 #saver.save(sess,os.path.join(model_path,model_name),global_step=global_step)
 

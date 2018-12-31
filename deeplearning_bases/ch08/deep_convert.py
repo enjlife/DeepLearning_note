@@ -5,8 +5,11 @@ from deeplearning_bases.common.layers import *
 import pickle
 
 
+"""
+与VGG相似的卷积神经网络
 
-#与VGG相似的卷积神经网络
+"""
+
 
 
 

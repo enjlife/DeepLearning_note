@@ -5,7 +5,6 @@ import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from tensorflow.python.platform import gfile
 from tensorflow.examples.tutorials.mnist import input_data
-from dataset import mnist
 
 input_data_num = 784
 output_data_num = 10
