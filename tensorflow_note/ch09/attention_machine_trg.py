@@ -7,22 +7,19 @@ import collections
 from operator import itemgetter
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-raw_data_zh = '/Users/enjlife/Downloads/en-zh/train.tags.en-zh.zh'
-raw_data_en = '/Users/enjlife/Downloads/en-zh/train.tags.en-zh.en'
-vocab_out_zh = 'ted_zh.vocab'
-vocab_out_en = 'ted_en.vocab'
-output_en = 'ted.src'
-output_zh = 'ted.trg'
-
 """
-1.机器翻译--5个epoch，一个epoch会跑完dataset中的数据，100个batch_size，每跑完一个batch_size step+1
+1.在seq2seq的基础上修改添加attention算法
+2.修改内容为-编码器的神经网络 编码器的构建 解码器的构建
+
 
 
 """
+
 dir_name = os.path.dirname(__file__)
 src_data = 'train.en'
 trg_data = 'train.zh'
-checkpoint_path = dir_name+'/seq2seq_ckpt'
+checkpoint_path = dir_name+'/attention_ckpt'
+
 hidden_size = 1024
 num_layers = 2
 src_vocab_size = 10000
@@ -73,7 +70,10 @@ def MakeSrcTrgDataset(src_path,trg_path,batch_size):
 
 class NMTModel(object):
     def __init__(self):
-        self.enc_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.LSTMCell(hidden_size) for _ in range(num_layers)])
+        #self.enc_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.LSTMCell(hidden_size) for _ in range(num_layers)])
+        self.enc_cell_fw = tf.nn.rnn_cell.LSTMCell(hidden_size)
+        self.enc_cell_bw = tf.nn.rnn_cell.LSTMCell(hidden_size)
+
         self.dec_cell = tf.nn.rnn_cell.MultiRNNCell([tf.nn.rnn_cell.LSTMCell(hidden_size) for _ in range(num_layers)])
 
         self.src_embedding = tf.get_variable('src_emb',[src_vocab_size,hidden_size])  # 定义词向量
@@ -95,10 +95,16 @@ class NMTModel(object):
         trg_emb = tf.nn.dropout(trg_emb,keep_prob)
 
         with tf.variable_scope('encoder'):  # 构建编码器
-            enc_outputs,enc_state = tf.nn.dynamic_rnn(self.enc_cell,src_emb,src_size,dtype=tf.float32)
+            #enc_outputs,enc_state = tf.nn.dynamic_rnn(self.enc_cell,src_emb,src_size,dtype=tf.float32)
+            enc_outputs,enc_state = tf.nn.bidirectional_dynamic_rnn(self.enc_cell_fw,self.enc_cell_bw,src_emb,src_size)
+            enc_outputs = tf.concat([enc_outputs[0],enc_outputs[1]],-1)  # 拼接
 
         with tf.variable_scope('decoder'):  # 构建解码器
-            dec_outputs,dec_state = tf.nn.dynamic_rnn(self.dec_cell,trg_emb,trg_size,initial_state=enc_state)
+            #dec_outputs,dec_state = tf.nn.dynamic_rnn(self.dec_cell,trg_emb,trg_size,initial_state=enc_state)
+            attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(hidden_size,enc_outputs,memory_sequence_length=src_size)
+            # 将解码器和注意力一起封装成更高层的循环神经网络
+            attention_cell = tf.contrib.seq2seq.AttentionWrapper(self.dec_cell,attention_mechanism,attention_layer_size=hidden_size)
+            dec_outputs,_ = tf.nn.dynamic_rnn(attention_cell,trg_emb,trg_size,dtype=tf.float32)
 
         # 计算每一步的log perplity
         output = tf.reshape(dec_outputs,[-1,hidden_size])
@@ -158,9 +164,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
-
-
-
-
-
