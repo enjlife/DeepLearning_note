@@ -2,6 +2,7 @@ import tensorflow as tf
 import sys, os
 sys.path.append(os.pardir)
 import tensorflow.contrib.slim as slim
+
 import tflearn
 from tflearn.layers.core import  input_data,fully_connected
 from  tflearn.layers.conv import conv_2d,max_pool_2d
@@ -56,6 +57,7 @@ file_dataset = '/Users/enjlife/learning-deep-learning-from-scratch/tensorflow_no
 #     main()
 
 #tflearn 实现LeNet-5模型
+
 trainx,trainy,testx,testy = mnist.load_data(data_dir=file_dataset,one_hot=True)
 trainx = trainx.reshape([-1,28,28,1])
 testx = testx.reshape([-1,28,28,1])
